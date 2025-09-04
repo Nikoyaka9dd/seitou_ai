@@ -17,6 +17,42 @@ const BackIcon = () => (
     </svg>
 );
 
+// 質問テンプレート用のモーダルコンポーネント
+type HelpModalProps = {
+    isOpen: boolean;
+    isClosing: boolean;
+    onClose: () => void;
+    onSelectQuestion: (question: string) => void;
+};
+
+const HelpModal = ({ isOpen, isClosing, onClose, onSelectQuestion }: HelpModalProps) => {
+    if (!isOpen) return null;
+    
+    const questionTemplates = [
+        "消費税についてどう思う？",
+        "子育て支援について教えて",
+        "日本の防衛について",
+        "年金制度の将来は？",
+        "環境問題への取り組みは？"
+    ];
+
+    return (
+        <div className="help-modal-backdrop" onClick={onClose}>
+            <div className={`help-modal-content ${isClosing ? 'is-closing' : ''}`} onClick={(e) => e.stopPropagation()}>
+                <h3 className="help-modal-title">こんな質問をしてみよう</h3>
+                <div className="question-templates-list">
+                    {questionTemplates.map((q, i) => (
+                        <button key={i} className="question-template-button" onClick={() => onSelectQuestion(q)}>
+                            {q}
+                        </button>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+
 
 type Message = {
   role: 'user' | 'assistant';
@@ -38,8 +74,12 @@ export default function ChatPage({ params }: ChatPageProps) {
   const [isLoading, setIsLoading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
-  const lastEnterPress = useRef(0); // Enterキーの最終押下時間を記録
+  const lastEnterPress = useRef(0);
+  
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
+  const [isHelpModalClosing, setIsHelpModalClosing] = useState(false); // ★追加
 
+  // チャット履歴が更新されたら、一番下までスクロールする
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -85,14 +125,14 @@ export default function ChatPage({ params }: ChatPageProps) {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && e.shiftKey) {
-      return; // Shift + Enter で改行を許可
+      return;
     }
     if (e.key === 'Enter') {
       e.preventDefault();
       const currentTime = new Date().getTime();
       const timeSinceLastPress = currentTime - lastEnterPress.current;
       
-      if (timeSinceLastPress < 300) { // 300ミリ秒以内に再度Enterが押されたら送信
+      if (timeSinceLastPress < 300) {
         handleSubmit();
         lastEnterPress.current = 0;
       } else {
@@ -100,10 +140,33 @@ export default function ChatPage({ params }: ChatPageProps) {
       }
     }
   };
+  
+
+  // ヘルプモーダルを閉じる処理
+  const handleCloseHelpModal = () => {
+      setIsHelpModalClosing(true);
+      setTimeout(() => {
+          setIsHelpModalOpen(false);
+          setIsHelpModalClosing(false);
+      }, 400);
+  };
+  
+  // テンプレートが選択された時の処理
+  const handleSelectQuestion = (question: string) => {
+    handleCloseHelpModal();
+    setInputValue(question);
+    setTimeout(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = "auto";
+            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+            textareaRef.current.focus();
+        }
+    }, 10);
+  };
+
 
 
   return (
-
     <div className="container page-transition-wrapper">
       <header className="chat-header">
         <button onClick={() => router.back()} className="back-button">
@@ -139,7 +202,7 @@ export default function ChatPage({ params }: ChatPageProps) {
             value={inputValue}
             onChange={handleInput}
             onKeyDown={handleKeyDown}
-            placeholder="質問を入力..."
+            placeholder="ここに質問を入力してください"
             className="question-input"
             rows={1}
           />
@@ -147,10 +210,18 @@ export default function ChatPage({ params }: ChatPageProps) {
             <SendIcon />
           </button>
         </div>
-        <p className="chat-footer-note">
-          質問内容に困ったら <a href="#" className="help-link">help</a>
-        </p>
+        <button className="chat-footer-note footer-button" onClick={() => setIsHelpModalOpen(true)}>
+          質問内容に困ったら？
+        </button>
       </footer>
+      
+
+      <HelpModal 
+        isOpen={isHelpModalOpen}
+        isClosing={isHelpModalClosing}
+        onClose={handleCloseHelpModal}
+        onSelectQuestion={handleSelectQuestion}
+      />
     </div>
   );
 }

@@ -43,8 +43,8 @@ body {
   display: flex; /* 画像を中央に配置 */
   align-items: center;
   justify-content: center;
-  width: 85px;  /* Imageコンポーネントのサイズに合わせる */
-  height: 85px; /* Imageコンポーネントのサイズに合わせる */
+  width: 100px;  /* Imageコンポーネントのサイズに合わせる */
+  height: 100px; /* Imageコンポーネントのサイズに合わせる */
 }
 
 .logo img {
@@ -493,6 +493,8 @@ body {
   text-align: center;
   color: #6b7280;
   padding-bottom: 1.5rem;
+  font-size: 1rem;
+  font-weight: 600; 
 }
 
 .help-link {
@@ -500,6 +502,8 @@ body {
   text-decoration: underline;
   background: none;
   border: none;
+  font-size: 1rem;
+  font-weight: 600;
   padding: 0;
   cursor: pointer;
 }
@@ -912,10 +916,115 @@ body {
 
 
 .chat-footer-note {
-  font-size: 0.75rem;
+  width: 100%;
+  font-size: 0.875rem;
   text-align: center;
   color: #6b7280;
-  margin-top: 0.5rem;
+  padding-bottom: 1.5rem;
+  font-size: 1rem;
+  font-weight: 600; 
+}
+
+/* ヘルプモーダルのスタイル */
+.help-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0); 
+  display: flex;
+  justify-content: center;
+  align-items: flex-end; /* 下揃え */
+  z-index: 1000;
+  animation: fadeInBackdrop 0.3s ease-out forwards;
+}
+
+.help-modal-content {
+  background-color: white;
+  width: 100%;
+  max-width: 640px;
+  padding: 1rem 1rem 2rem 1rem;
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+  box-shadow: 0 -10px 25px rgba(0,0,0,0.1);
+  animation: slideInUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+@keyframes slideInUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+.help-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0); 
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 1000;
+  animation: fadeInBackdrop 0.3s ease-out forwards;
+  /* ★変更：表示位置を少し上げる */
+  padding: 0 1rem 5vh 1rem;
+}
+
+.help-modal-content {
+  background-color: white;
+  width: 100%;
+  max-width: 640px;
+  padding: 1rem 1rem 2rem 1rem;
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+  box-shadow: 0 -10px 25px rgba(0,0,0,0.1);
+  animation: slideInUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* ★追加：閉じる時のアニメーションクラス */
+.help-modal-content.is-closing {
+    animation: slideOutDown 0.4s cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards;
+}
+
+@keyframes slideInUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* ★追加：閉じる時のアニメーション定義 */
+@keyframes slideOutDown {
+    from { transform: translateY(0); opacity: 1; }
+    to { transform: translateY(100%); opacity: 0; }
+}
+
+.help-modal-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.question-templates-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.question-template-button {
+    width: 100%;
+    background-color: #f3f4f6;
+    color: #1f2937;
+    border: none;
+    border-radius: 12px;
+    padding: 1rem;
+    font-size: 1rem;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.question-template-button:hover {
+    background-color: #e5e7eb;
 }
 
 

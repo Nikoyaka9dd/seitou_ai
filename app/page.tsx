@@ -2,8 +2,9 @@
 
 import { useRef, useState } from "react";
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import logoIcon from './assets/icon.png';
+import { useRouter } from 'next/navigation';
+
 
 // アイコンのSVGコンポーネント群
 const SendIcon = () => (
@@ -11,8 +12,6 @@ const SendIcon = () => (
     <path d="M2.01 21L23 12L2.01 3L2 10L17 12L2 14L2.01 21Z" fill="currentColor" />
   </svg>
 );
-
-
 const CloseIcon = () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -20,17 +19,50 @@ const CloseIcon = () => (
     </svg>
 );
 
-
 // 各政党のプロフィール情報の型を定義
 type PartyProfile = {
   name: string;
   description: string;
   url: string;
 };
-
-// partyProfilesオブジェクトの型を定義し、文字列のキーを持つことを明示
 type PartyProfiles = {
   [key: string]: PartyProfile;
+};
+
+// ヘルプモーダル用のコンポーネント
+type HelpModalProps = {
+    isOpen: boolean;
+    isClosing: boolean; 
+    onClose: () => void;
+    onSelectQuestion: (question: string) => void;
+};
+
+const HelpModal = ({ isOpen, isClosing, onClose, onSelectQuestion }: HelpModalProps) => {
+    if (!isOpen) return null;
+    
+    const questionTemplates = [
+        "消費税についてどう思う？",
+        "子育て支援について教えて",
+        "日本の防衛について",
+        "年金制度の将来は？",
+        "環境問題への取り組みは？"
+    ];
+
+    return (
+        // 閉じる時のアニメーションクラスを適用
+        <div className="help-modal-backdrop" onClick={onClose}>
+            <div className={`help-modal-content ${isClosing ? 'is-closing' : ''}`} onClick={(e) => e.stopPropagation()}>
+                <h3 className="help-modal-title">こんな質問をしてみよう</h3>
+                <div className="question-templates-list">
+                    {questionTemplates.map((q, i) => (
+                        <button key={i} className="question-template-button" onClick={() => onSelectQuestion(q)}>
+                            {q}
+                        </button>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
 };
 
 // ハンバーガーメニュー用のモーダルコンポーネント
@@ -70,18 +102,13 @@ const MenuModal = ({ isOpen, onClose, onPartySelect, politicalParties }: MenuMod
 // 政党プロフィール用のモーダルコンポーネント
 type PartyProfileModalProps = {
     isOpen: boolean;
-    onClose: () => void; // 戻る処理のためのonBackを追加
+    onClose: () => void;
     onBack: () => void;
-    partyData: {
-        name: string;
-        description: string;
-        url: string;
-    } | null;
+    partyData: PartyProfile | null;
 };
 
 const PartyProfileModal = ({ isOpen, onClose, onBack, partyData }: PartyProfileModalProps) => {
     const router = useRouter();
-
     if (!isOpen || !partyData) return null;
 
     const handleChatClick = () => {
@@ -111,6 +138,7 @@ const PartyProfileModal = ({ isOpen, onClose, onBack, partyData }: PartyProfileM
         </div>
     );
 };
+
 
 // 政党回答のモーダルコンポーネント
 type PartyAnswerModalProps = {
@@ -197,6 +225,9 @@ export default function Home() {
   const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [selectedPartyForProfile, setSelectedPartyForProfile] = useState("");
+  
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
+  const [isHelpModalClosing, setIsHelpModalClosing] = useState(false); // ★追加
 
   const politicalParties = [
     "自民党", "民主党", "維新", "公明党",
@@ -204,7 +235,6 @@ export default function Home() {
     "参政党", "みんな", "みらい"
   ];
   
-  // 各政党のプロフィールデータ（ダミー）
   const partyProfiles: PartyProfiles = {
     "自民党": { name: "自民党", description: "自由民主党の概要です。ここに政党の基本的な情報や理念などが表示されます。", url: "https://www.jimin.jp/" },
     "民主党": { name: "民主党", description: "民主党の概要です。", url: "#" },
@@ -313,34 +343,48 @@ export default function Home() {
     requestAnimationFrame(() => setIsModalTransitioning(false));
   };
   
-
   const closeAnswerModal = () => setIsAnswerModalOpen(false);
   
-  // メニューの開閉をトグル式にする
   const handleMenuToggle = () => {
-    // どちらかのメニュー系モーダルが開いている場合は、両方とも閉じる
     if (isMenuModalOpen || isProfileModalOpen) {
       setIsMenuModalOpen(false);
       setIsProfileModalOpen(false);
     } else {
-      // どちらも閉じていれば、メインメニューを開く
       setIsMenuModalOpen(true);
     }
   };
   
-  // プロフィールから政党一覧に戻る処理
   const handleBackToMenu = () => {
     setIsProfileModalOpen(false);
     setIsMenuModalOpen(true);
   };
   
-
   const closeProfileModal = () => {
       setIsProfileModalOpen(false);
       setIsMenuModalOpen(false);
   };
 
-
+  // ★追加：ヘルプモーダルを閉じる処理
+  const handleCloseHelpModal = () => {
+      setIsHelpModalClosing(true);
+      setTimeout(() => {
+          setIsHelpModalOpen(false);
+          setIsHelpModalClosing(false);
+      }, 400); // アニメーションの時間に合わせる
+  };
+  
+  // ★追加：テンプレートが選択された時の処理
+  const handleSelectQuestion = (question: string) => {
+      handleCloseHelpModal();
+      setInputValue(question);
+      setTimeout(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = "auto";
+            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+            textareaRef.current.focus();
+        }
+    }, 10); // モーダルが閉じてからフォーカス
+  };
 
   const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputValue(e.target.value);
@@ -377,11 +421,10 @@ export default function Home() {
 
   return (
     <div className="container">
-      {/* ヘッダー */}
       <header className="header">
         <div className="header-inner">
           <div className="logo">
-            <Image src={logoIcon} alt="ちょいぽりてぃ ロゴ" width={56} height={56} />
+            <Image src={logoIcon} alt="ちょいぽりてぃ ロゴ" width={100} height={100} />
           </div>
           <button 
             onClick={handleMenuToggle} 
@@ -397,7 +440,6 @@ export default function Home() {
         </div>
       </header>
 
-      {/* メインコンテンツ */}
       <main className="main-content">
         <div className="flex-grow w-full flex flex-col items-center">
           {!showResults ? (
@@ -472,8 +514,9 @@ export default function Home() {
       </main>
       
       <footer className="footer">
-        質問内容に困ったら{" "}
-        <button className="help-link">help</button>
+        <button className="footer-button" onClick={() => setIsHelpModalOpen(true)}>
+            質問内容に困ったら？
+        </button>
       </footer>
 
       <PartyAnswerModal 
@@ -504,8 +547,15 @@ export default function Home() {
         onBack={handleBackToMenu}
         partyData={partyProfiles[selectedPartyForProfile]}
       />
+      
+      {/* ★追加：ヘルプモーダル */}
+      <HelpModal 
+        isOpen={isHelpModalOpen}
+        isClosing={isHelpModalClosing}
+        onClose={handleCloseHelpModal}
+        onSelectQuestion={handleSelectQuestion}
+      />
     </div>
   );
 }
-
 

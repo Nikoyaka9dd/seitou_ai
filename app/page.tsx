@@ -23,7 +23,7 @@ const CloseIcon = () => (
     </svg>
 );
 
-// モーダルのProps
+// モーダルのPropsを拡張
 type PartyAnswerModalProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -35,27 +35,31 @@ type PartyAnswerModalProps = {
   onFutureClick: () => void;
   onPastClick: () => void;
   onBackClick: () => void;
+  isTransitioning: boolean;
+  hasTransitioned: boolean;
 };
 
-// ポップアップのコンポーネント
+// ポップアップ（モーダル）のコンポーネント
 const PartyAnswerModal = ({ 
   isOpen, onClose, partyName, answer, isLoading, error, 
-  modalView, onFutureClick, onPastClick, onBackClick 
+  modalView, onFutureClick, onPastClick, onBackClick, 
+  isTransitioning, hasTransitioned
 }: PartyAnswerModalProps) => {
   if (!isOpen) return null;
 
   const handleReferenceClick = () => console.log(`「${partyName}」の参考情報を表示`);
-
-  // モーダルの表示状態に応じてタイトルを変更
   const title = modalView === 'initial' ? partyName : modalView === 'future' ? '未来' : '過去';
+
+  const animationClass = isTransitioning 
+    ? 'content-exit' 
+    : (hasTransitioned ? 'content-enter' : '');
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div className={`modal-content ${animationClass}`} onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title-wrapper">
             <h2 className="modal-title">{title}</h2>
-            {/* 最初の回答表示の時だけ参考情報ボタンを表示 */}
             {modalView === 'initial' && (
               <button onClick={handleReferenceClick} className="reference-button">参考情報</button>
             )}
@@ -65,10 +69,11 @@ const PartyAnswerModal = ({
           </button>
         </div>
         <div className="modal-body">
-          {isLoading ? <div className="loading-spinner"></div> : error ? <p className="error-message">{error}</p> : <p>{answer}</p>}
+          <div className="modal-body-content">
+            {isLoading ? <div className="loading-spinner"></div> : error ? <p className="error-message">{error}</p> : <p>{answer}</p>}
+          </div>
         </div>
         <div className="modal-footer">
-          {/* モーダルの表示状態に応じてボタンを切り替え */}
           {modalView === 'initial' ? (
             <>
               <button onClick={onFutureClick} className="modal-action-button">未来を見てみる</button>
@@ -97,11 +102,11 @@ export default function Home() {
   const [partyAnswer, setPartyAnswer] = useState("");
   const [isModalLoading, setIsModalLoading] = useState(false);
   const [modalError, setModalError] = useState<string | null>(null);
-  // モーダル内の表示状態を管理
   const [modalView, setModalView] = useState<'initial' | 'future' | 'past'>('initial');
-  // 最初の回答を保存しておくためのState
   const [initialPartyAnswer, setInitialPartyAnswer] = useState("");
-
+  const [isModalTransitioning, setIsModalTransitioning] = useState(false);
+  // 一度でも未来/過去ボタンが押されたかを管理する
+  const [hasTransitioned, setHasTransitioned] = useState(false);
 
   const politicalParties = [
     "自民党", "民主党", "維新", "公明党",
@@ -109,7 +114,6 @@ export default function Home() {
     "参政党", "みんな", "みらい"
   ];
 
-  // APIを呼び出す共通関数
   const getAiAnswer = async (question: string, partyName: string) => {
     const response = await fetch('/api/chat', {
       method: 'POST',
@@ -124,19 +128,19 @@ export default function Home() {
     return data.answer;
   };
   
-  // 政党ボタンがクリックされた時の処理
   const handlePartyClick = async (partyName: string) => {
     setSelectedParty(partyName);
     setIsModalOpen(true);
     setIsModalLoading(true);
     setModalError(null);
     setPartyAnswer("");
-    setModalView('initial'); // 表示を初期状態にリセット
+    setModalView('initial');
+    setHasTransitioned(false); // モーダルが開くたびにリセット
 
     try {
       const answer = await getAiAnswer(submittedQuestion, partyName);
       setPartyAnswer(answer);
-      setInitialPartyAnswer(answer); // 最初の回答を保存
+      setInitialPartyAnswer(answer);
     } catch (err) {
       console.error(err);
       const errorMessage = err instanceof Error ? err.message : '不明なエラーが発生しました';
@@ -146,11 +150,14 @@ export default function Home() {
     }
   };
 
-  // 「未来を見てみる」ボタンがクリックされた時の処理
   const handleFutureRequest = async () => {
+    setHasTransitioned(true); // 遷移開始をマーク
+    setIsModalTransitioning(true);
+    await new Promise(resolve => setTimeout(resolve, 300));
+
     setIsModalLoading(true);
     setModalError(null);
-    setModalView('future'); // 表示を「未来」モードに切り替え
+    setModalView('future');
     const futurePrompt = `「${selectedParty}」の今後の動向について、未来を予測してください。`;
 
     try {
@@ -162,14 +169,18 @@ export default function Home() {
       setModalError(`予測の取得に失敗しました: ${errorMessage}`);
     } finally {
       setIsModalLoading(false);
+      requestAnimationFrame(() => setIsModalTransitioning(false));
     }
   };
   
-  // 「過去を見てみる」ボタンがクリックされた時の処理
   const handlePastRequest = async () => {
+    setHasTransitioned(true); // 遷移開始をマーク
+    setIsModalTransitioning(true);
+    await new Promise(resolve => setTimeout(resolve, 300));
+
     setIsModalLoading(true);
     setModalError(null);
-    setModalView('past'); // 表示を「過去」モードに切り替え
+    setModalView('past');
     const pastPrompt = `「${selectedParty}」の過去の重要な政策や出来事について教えてください。`;
 
     try {
@@ -181,13 +192,20 @@ export default function Home() {
       setModalError(`過去の情報の取得に失敗しました: ${errorMessage}`);
     } finally {
       setIsModalLoading(false);
+      requestAnimationFrame(() => setIsModalTransitioning(false));
     }
   };
   
-  // 「戻る」ボタンがクリックされた時の処理
-  const handleBackToInitial = () => {
-      setPartyAnswer(initialPartyAnswer); // 保存しておいた最初の回答に戻す
-      setModalView('initial'); // 表示を初期状態に戻す
+  const handleBackToInitial = async () => {
+    setHasTransitioned(true); // 遷移開始をマーク
+    setIsModalTransitioning(true);
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    setPartyAnswer(initialPartyAnswer);
+    setModalView('initial');
+    setModalError(null);
+
+    requestAnimationFrame(() => setIsModalTransitioning(false));
   };
 
   const closeModal = () => setIsModalOpen(false);
@@ -330,11 +348,12 @@ export default function Home() {
         answer={partyAnswer}
         isLoading={isModalLoading}
         error={modalError}
-        // モーダルに新しいPropsを渡す
         modalView={modalView}
         onFutureClick={handleFutureRequest}
         onPastClick={handlePastRequest}
         onBackClick={handleBackToInitial}
+        isTransitioning={isModalTransitioning}
+        hasTransitioned={hasTransitioned} // ★追加
       />
     </div>
   );

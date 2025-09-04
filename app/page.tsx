@@ -165,10 +165,23 @@ export default function Home() {
     }
   };
   
-  // 「過去を見てみる」ボタンがクリックされた時の処理(あとでかく)
-  const handlePastRequest = () => {
-      console.log(`「${selectedParty}」の過去の情報を取得します。`);
-      // ここに過去の情報を取得するロジックを実装
+  // 「過去を見てみる」ボタンがクリックされた時の処理
+  const handlePastRequest = async () => {
+    setIsModalLoading(true);
+    setModalError(null);
+    setModalView('past'); // 表示を「過去」モードに切り替え
+    const pastPrompt = `「${selectedParty}」の過去の重要な政策や出来事について教えてください。`;
+
+    try {
+      const answer = await getAiAnswer(pastPrompt, selectedParty);
+      setPartyAnswer(answer);
+    } catch (err) {
+      console.error(err);
+      const errorMessage = err instanceof Error ? err.message : '不明なエラーが発生しました';
+      setModalError(`過去の情報の取得に失敗しました: ${errorMessage}`);
+    } finally {
+      setIsModalLoading(false);
+    }
   };
   
   // 「戻る」ボタンがクリックされた時の処理

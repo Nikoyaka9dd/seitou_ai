@@ -8,37 +8,31 @@ html {
 }
 body {
   min-height: 100%;
-  background-color: #ddfff0; /* 背景を白に */
+  background-color: #ddfff0;
   display: flex;
   flex-direction: column;
 }
 
 .container {
-  min-height: 100vh; /* 画面の高さいっぱいに広げる */
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
   display: flex;
   flex-direction: column;
-  padding: 1.5rem;
-  max-width: 640px; /* スマートフォンの最大幅 */
-  margin: 0 auto; /* 中央揃え */
+  flex-grow: 1; 
 }
-
 .header {
   width: 100%;
   padding-top: 1.5rem;
   padding-bottom: 1.5rem;
-  /* Flexboxを使って中身を中央に配置する設定を追加 */
-  display: flex;
-  justify-content: center;
 }
 
 .header-inner {
   display: flex;
-  justify-content: space-between; /* ロゴとボタンを両端に配置 */
+  justify-content: space-between;
   align-items: center;
   width: 100%;
-  max-width: 640px; /* モバイルではコンテンツ幅に合わせる */
-  /* margin: 0 auto; は親要素のFlexboxで代用するため不要に */
-  padding: 0 1.5rem;
 }
 
 .logo {
@@ -46,9 +40,9 @@ body {
   font-weight: bold;
   border-radius: 9999px;
   padding: 0.25rem 1rem;
-  background-color: #fed8ac; /* より淡いパステルオレンジ */
+  background-color: #fae17d;
   color: #1f2937;
-  box-shadow: 0 4px 10px rgba(197, 89, 0, 0.08); /* 陰影 */
+  box-shadow: 0 4px 10px rgba(197, 89, 0, 0.08);
 }
 
 .menu-button svg {
@@ -57,12 +51,13 @@ body {
 
 /* メインコンテンツ */
 .main-content {
-  flex-grow: 1; /* 親要素の高さに合わせて伸びる */
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* 上部と下部のコンテンツを離す */
+  justify-content: space-between;
   align-items: center;
   width: 100%;
+  padding-top: 1.5rem;
 }
 
 .welcome-title {
@@ -73,37 +68,39 @@ body {
 }
 
 .highlight {
-  color: #ffb168;
+  color: #ffd258;
+  font-weight: 600;
+  font-size: 2rem;
 }
 
 .welcome-subtitle {
   margin-bottom: 2rem;
   text-align: center;
   color: #4b5563;
-  font-weight: 400; /* フォントを少し太く */
+  font-weight: 400;
 }
 
 /* 機能グリッド */
 .features-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem; /* 少し広めに */
+  gap: 1.5rem;
   width: 100%;
   margin-bottom: 2rem;
 }
 
 .feature-item {
-  background-color: #fed8ac; /* より淡いパステルオレンジ */
-  border-radius: 16px; /* 角を少し丸く */
+  background-color: #fde68a;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #1f2937;
   font-size: 1rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* 陰影 */
-  aspect-ratio: 1 / 1; /* 正方形にする */
-  opacity: 0; /* アニメーションの初期状態 */
-  animation: fadeInUp 0.6s ease-out forwards; /* アニメーションを適用 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  aspect-ratio: 1 / 1;
+  opacity: 0;
+  animation: fadeInUp 0.6s ease-out forwards;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
@@ -121,21 +118,28 @@ body {
 .feature-item:nth-child(6) { animation-delay: 0.6s; }
 
 /* 質問セクション */
+.question-prompt {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
 .question-area {
   width: 100%;
   display: flex;
-  align-items: center; /* ★変更：要素を縦方向中央に揃える */
-  background-color: #ffffff; /* ★変更：背景を白に */
-  border-radius: 9999px; /* ★変更：角を完全に丸くする */
-  padding: 0.5rem 0.6rem 0.5rem 1.25rem; /* ★変更：パディング調整 */
+  align-items: center;
+  background-color: #ffffff;
+  border-radius: 9999px;
+  padding: 0.5rem 0.6rem 0.5rem 1.25rem;
   margin-bottom: 1rem;
-  border: 1px solid #fde68a; /* ★追加：オレンジ色の枠線を追加 */
+  border: 1px solid #fde68a;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .question-area:focus-within {
-  border-color: #fdb878; /* ★変更：フォーカス時に枠線の色を濃くする */
-  box-shadow: 0 0 0 3px rgba(253, 184, 120, 0.2); /* ★追加：フォーカスリング */
+  border-color: #fdb878;
+  box-shadow: 0 0 0 3px rgba(253, 184, 120, 0.2);
 }
 
 .question-input {
@@ -149,26 +153,18 @@ body {
   font-family: inherit;
   padding-right: 0.75rem;
   line-height: 1.5;
-  /* ★削除：align-self: center; は不要になったので削除 */
 }
 
 .question-input::placeholder {
   color: #9ca3af;
 }
 
-.question-prompt {
-  text-align: center;
-  margin-bottom: 1.5rem; /* 下の余白を広げる */
-  font-size: 2rem; /* フォントサイズを大きく */
-  font-weight: 600; /* フォントを少し太く */
-}
-
 .submit-button {
   background-color: #fde68a;
-  border-radius: 50%; 
-  width: 36px; 
-  height: 36px; 
-  padding: 0; 
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -186,18 +182,31 @@ body {
   color: #3f3f46;
 }
 
-/* 送信された質問を表示するボックス */
-.submitted-question {
+.submitted-question-wrapper {
   width: 100%;
-  padding: 0.75rem 1.5rem;
+  display: flex;
+  justify-content: flex-end;
   margin-bottom: 2rem;
+}
+
+.submitted-question {
+  width: auto;
+  max-width: 80%;
+  padding: 0.75rem 1.25rem;
   background-color: #fff;
   border: 1px solid #fde68a;
-  border-radius: 9999px;
-  text-align: center;
+  border-radius: 20px;
+  text-align: left;
   color: #1f2937;
   font-size: 1rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.answer-bubble-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start; /* 'flex-frist'から修正 */
+  margin-bottom: 2rem;
 }
 
 /* 政党の回答ボタンのグリッド */
@@ -233,12 +242,92 @@ body {
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
+/* ローディング中のアニメーション */
+.loading-bubble {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  background-color: #fef3c7;
+  border-radius: 20px;
+}
+.loading-bubble .dot {
+  width: 8px;
+  height: 8px;
+  margin: 0 3px;
+  background-color: #929292;
+  border-radius: 50%;
+  animation: blink 1.4s infinite both;
+}
+.loading-bubble .dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.loading-bubble .dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+@keyframes blink {
+  0% { opacity: 0.2; }
+  20% { opacity: 1; }
+  100% { opacity: 0.2; }
+}
+
+/* 回答結果全体をフェードインさせるためのラッパー */
+.results-wrapper {
+  width: 100%;
+}
+
+/* 回答バブルと政党ボタンにアニメーションの基本設定を追加 */
+.answer-bubble-wrapper,
+.party-answer-button {
+  opacity: 0; 
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.answer-bubble-wrapper {
+  animation-delay: 0.1s;
+}
+
+/* 政党ボタンの1行目 */
+.party-answer-button:nth-child(1),
+.party-answer-button:nth-child(2) {
+  animation-delay: 0.4s;
+}
+
+/* 政党ボタンの2行目 */
+.party-answer-button:nth-child(3),
+.party-answer-button:nth-child(4) {
+  animation-delay: 0.7s;
+}
+
+/* 政党ボタンの3行目 */
+.party-answer-button:nth-child(5),
+.party-answer-button:nth-child(6) {
+  animation-delay: 1.0s;
+}
+
+/* 政党ボタンの4行目 */
+.party-answer-button:nth-child(7),
+.party-answer-button:nth-child(8) {
+  animation-delay: 1.3s;
+}
+
+/* 政党ボタンの5行目 */
+.party-answer-button:nth-child(9),
+.party-answer-button:nth-child(10) {
+  animation-delay: 1.6s;
+}
+
+/* 政党ボタンの6行目 */
+.party-answer-button:nth-child(11) {
+  animation-delay: 1.9s;
+}
+
 /* フッター */
 .footer {
   width: 100%;
   font-size: 0.875rem;
   text-align: center;
   color: #6b7280;
+  padding-bottom: 1.5rem;
 }
 
 .help-link {
@@ -264,11 +353,15 @@ body {
 
 /* レスポンシブ対応 (PC表示) */
 @media (min-width: 768px) {
+  .header-inner {
+    max-width: 100%;
+    padding: 0 2rem;
+  }
   .container {
-    max-width: 768px; /* PCでの表示幅を広げる */
+    max-width: 768px;
   }
   .features-grid {
-    grid-template-columns: repeat(3, 1fr); /* PCでは3列に */
+    grid-template-columns: repeat(3, 1fr);
   }
   .party-answers-grid {
     grid-template-columns: repeat(3, 1fr);

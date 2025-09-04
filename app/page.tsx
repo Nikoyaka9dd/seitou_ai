@@ -1,6 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Image from 'next/image';
+import logoIcon from './assets/icon.png';
 
 // page.tsxをクライアントコンポーネントとして設定し、useStateとuseRefフックをインポートします。
 
@@ -165,7 +167,9 @@ export default function Home() {
       {/* ヘッダー */}
       <header className="header">
         <div className="header-inner">
-          <div className="logo">ロゴ</div>
+          <div className="logo">
+            <Image src={logoIcon} alt="ちょいぽりてぃ ロゴ" width={85} height={85} />
+          </div>
           <button aria-label="menu" className="menu-button">
             <MenuIcon />
           </button>

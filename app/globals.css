@@ -36,13 +36,19 @@ body {
 }
 
 .logo {
-  font-size: 1.25rem;
-  font-weight: bold;
-  border-radius: 9999px;
-  padding: 0.25rem 1rem;
-  background-color: #fae17d;
-  color: #1f2937;
-  box-shadow: 0 4px 10px rgba(197, 89, 0, 0.08);
+  border-radius: 50%; /* 画像を円形にする */
+  padding: 0;
+  background-color: transparent;
+  box-shadow: none;
+  display: flex; /* 画像を中央に配置 */
+  align-items: center;
+  justify-content: center;
+  width: 85px;  /* Imageコンポーネントのサイズに合わせる */
+  height: 85px; /* Imageコンポーネントのサイズに合わせる */
+}
+
+.logo img {
+  border-radius: 50%; /* 画像自体も円形にする */
 }
 
 .menu-button svg {

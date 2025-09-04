@@ -28,29 +28,17 @@ type PartyAnswerModalProps = {
   onClose: () => void;
   partyName: string;
   answer: string;
+  isLoading: boolean;
+  error: string | null;
 };
 
-// =================================
-// ★ここからが変更箇所です
-// =================================
-
 // ポップアップ（モーダル）のコンポーネント
-const PartyAnswerModal = ({ isOpen, onClose, partyName, answer }: PartyAnswerModalProps) => {
+const PartyAnswerModal = ({ isOpen, onClose, partyName, answer, isLoading, error }: PartyAnswerModalProps) => {
   if (!isOpen) return null;
 
-  const handleFutureClick = () => {
-    console.log(`「${partyName}」の未来を見てみる`);
-  };
-
-  const handlePastClick = () => {
-    console.log(`「${partyName}」の過去を見てみる`);
-  };
-
-  // 参考情報ボタンのクリック処理
-  const handleReferenceClick = () => {
-    console.log(`「${partyName}」の参考情報を表示`);
-    // ここで将来的に一次ソースのURLを開くなどの処理を実装します
-  };
+  const handleFutureClick = () => console.log(`「${partyName}」の未来を見てみる`);
+  const handlePastClick = () => console.log(`「${partyName}」の過去を見てみる`);
+  const handleReferenceClick = () => console.log(`「${partyName}」の参考情報を表示`);
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -65,7 +53,13 @@ const PartyAnswerModal = ({ isOpen, onClose, partyName, answer }: PartyAnswerMod
           </button>
         </div>
         <div className="modal-body">
-          <p>{answer}</p>
+          {isLoading ? (
+            <div className="loading-spinner"></div>
+          ) : error ? (
+            <p className="error-message">{error}</p>
+          ) : (
+            <p>{answer}</p>
+          )}
         </div>
         <div className="modal-footer">
           <button onClick={handleFutureClick} className="modal-action-button">未来を見てみる</button>
@@ -76,11 +70,6 @@ const PartyAnswerModal = ({ isOpen, onClose, partyName, answer }: PartyAnswerMod
   );
 };
 
-// =================================
-// ★変更箇所はここまでです
-// =================================
-
-
 export default function Home() {
   const [inputValue, setInputValue] = useState("");
   const [submittedQuestion, setSubmittedQuestion] = useState("");
@@ -89,9 +78,12 @@ export default function Home() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const lastEnterPress = useRef(0);
 
+  // モーダル関連のState
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedParty, setSelectedParty] = useState("");
   const [partyAnswer, setPartyAnswer] = useState("");
+  const [isModalLoading, setIsModalLoading] = useState(false);
+  const [modalError, setModalError] = useState<string | null>(null);
 
   const politicalParties = [
     "自民党", "民主党", "維新", "公明党",
@@ -99,16 +91,41 @@ export default function Home() {
     "参政党", "みんな", "みらい"
   ];
 
-  // 政党ボタンがクリックされた時の処理 (partyNameの型をstringに指定)
-  const handlePartyClick = (partyName: string) => {
+  // 政党ボタンがクリックされた時の処理
+  const handlePartyClick = async (partyName: string) => {
     setSelectedParty(partyName);
-    setPartyAnswer(`「${partyName}」からの回答やで〜。`); 
     setIsModalOpen(true);
+    setIsModalLoading(true);
+    setModalError(null);
+    setPartyAnswer("");
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question: submittedQuestion,
+          partyName: partyName,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('サーバーからの応答がありません');
+      }
+
+      const data = await response.json();
+      setPartyAnswer(data.answer);
+
+    } catch (err) {
+      console.error(err);
+      const errorMessage = err instanceof Error ? err.message : '不明なエラーが発生しました';
+      setModalError(`回答の取得に失敗しました: ${errorMessage}`);
+    } finally {
+      setIsModalLoading(false);
+    }
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
+  const closeModal = () => setIsModalOpen(false);
 
   const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputValue(e.target.value);
@@ -124,18 +141,12 @@ export default function Home() {
     setShowResults(true);
     setIsGenerating(true);
     setInputValue("");
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-    }
-    setTimeout(() => {
-      setIsGenerating(false);
-    }, 1500);
+    if (textareaRef.current) textareaRef.current.style.height = "auto";
+    setTimeout(() => setIsGenerating(false), 1500);
   };
   
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && e.shiftKey) {
-      return;
-    }
+    if (e.key === 'Enter' && e.shiftKey) return;
     if (e.key === 'Enter') {
       e.preventDefault();
       const currentTime = new Date().getTime();
@@ -250,6 +261,8 @@ export default function Home() {
         onClose={closeModal}
         partyName={selectedParty}
         answer={partyAnswer}
+        isLoading={isModalLoading}
+        error={modalError}
       />
     </div>
   );

@@ -205,7 +205,7 @@ body {
 .answer-bubble-wrapper {
   width: 100%;
   display: flex;
-  justify-content: flex-start; /* 'flex-frist'から修正 */
+  justify-content: flex-start;
   margin-bottom: 2rem;
 }
 
@@ -319,6 +319,109 @@ body {
 /* 政党ボタンの6行目 */
 .party-answer-button:nth-child(11) {
   animation-delay: 1.9s;
+}
+
+/* ポップアップ（モーダル）関連のスタイル */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+  background-color: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 500px;
+  padding: 1.5rem;
+  animation: scaleUp 0.3s ease-out;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* タイトルと参考情報ボタンをまとめるラッパー */
+.modal-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; /* タイトルとボタンの間の余白 */
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+/* ★参考情報ボタンのスタイル */
+.reference-button {
+  background-color: #ddfff0;
+  color: #4c4c4c;
+  border: none;
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.reference-button:hover {
+  background-color: #c8ffe7;
+}
+
+.modal-close-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  color: #6b7280;
+}
+.modal-close-button:hover {
+    color: #1f2937;
+}
+
+.modal-body {
+  margin-bottom: 1.5rem;
+  color: #374151;
+  line-height: 1.6;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 1rem;
+}
+
+.modal-action-button {
+  flex-grow: 1;
+  background-color: #fde68a;
+  border: none;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #1f2937;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+}
+.modal-action-button:hover {
+    background-color: #fcd34d;
+    transform: translateY(-2px);
 }
 
 /* フッター */

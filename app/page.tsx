@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import logoIcon from './assets/icon.png';
 
 // アイコンのSVGコンポーネント群
@@ -79,10 +80,12 @@ type PartyProfileModalProps = {
 };
 
 const PartyProfileModal = ({ isOpen, onClose, onBack, partyData }: PartyProfileModalProps) => {
+    const router = useRouter();
+
     if (!isOpen || !partyData) return null;
 
     const handleChatClick = () => {
-        console.log(`「${partyData.name}」のAIエージェントとの対話画面へ遷移します。`);
+        router.push(`/chat/${encodeURIComponent(partyData.name)}`);
     };
 
     return (
@@ -108,7 +111,6 @@ const PartyProfileModal = ({ isOpen, onClose, onBack, partyData }: PartyProfileM
         </div>
     );
 };
-
 
 // 政党回答のモーダルコンポーネント
 type PartyAnswerModalProps = {

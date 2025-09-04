@@ -4,7 +4,6 @@ import { useRef, useState } from "react";
 import Image from 'next/image';
 import logoIcon from './assets/icon.png';
 
-// page.tsxをクライアントコンポーネントとして設定し、useStateとuseRefフックをインポートします。
 
 // アイコンのSVGコンポーネント群
 const SendIcon = () => (
@@ -24,7 +23,7 @@ const CloseIcon = () => (
     </svg>
 );
 
-// ポップアップ（モーダル）のPropsの型を定義
+// モーダルのProps
 type PartyAnswerModalProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -32,40 +31,52 @@ type PartyAnswerModalProps = {
   answer: string;
   isLoading: boolean;
   error: string | null;
+  modalView: 'initial' | 'future' | 'past';
+  onFutureClick: () => void;
+  onPastClick: () => void;
+  onBackClick: () => void;
 };
 
-// ポップアップ（モーダル）のコンポーネント
-const PartyAnswerModal = ({ isOpen, onClose, partyName, answer, isLoading, error }: PartyAnswerModalProps) => {
+// ポップアップのコンポーネント
+const PartyAnswerModal = ({ 
+  isOpen, onClose, partyName, answer, isLoading, error, 
+  modalView, onFutureClick, onPastClick, onBackClick 
+}: PartyAnswerModalProps) => {
   if (!isOpen) return null;
 
-  const handleFutureClick = () => console.log(`「${partyName}」の未来を見てみる`);
-  const handlePastClick = () => console.log(`「${partyName}」の過去を見てみる`);
   const handleReferenceClick = () => console.log(`「${partyName}」の参考情報を表示`);
+
+  // モーダルの表示状態に応じてタイトルを変更
+  const title = modalView === 'initial' ? partyName : modalView === 'future' ? '未来' : '過去';
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title-wrapper">
-            <h2 className="modal-title">{partyName}</h2>
-            <button onClick={handleReferenceClick} className="reference-button">参考情報</button>
+            <h2 className="modal-title">{title}</h2>
+            {/* 最初の回答表示の時だけ参考情報ボタンを表示 */}
+            {modalView === 'initial' && (
+              <button onClick={handleReferenceClick} className="reference-button">参考情報</button>
+            )}
           </div>
           <button onClick={onClose} className="modal-close-button" aria-label="閉じる">
             <CloseIcon />
           </button>
         </div>
         <div className="modal-body">
-          {isLoading ? (
-            <div className="loading-spinner"></div>
-          ) : error ? (
-            <p className="error-message">{error}</p>
-          ) : (
-            <p>{answer}</p>
-          )}
+          {isLoading ? <div className="loading-spinner"></div> : error ? <p className="error-message">{error}</p> : <p>{answer}</p>}
         </div>
         <div className="modal-footer">
-          <button onClick={handleFutureClick} className="modal-action-button">未来を見てみる</button>
-          <button onClick={handlePastClick} className="modal-action-button">過去を見てみる</button>
+          {/* モーダルの表示状態に応じてボタンを切り替え */}
+          {modalView === 'initial' ? (
+            <>
+              <button onClick={onFutureClick} className="modal-action-button">未来を見てみる</button>
+              <button onClick={onPastClick} className="modal-action-button">過去を見てみる</button>
+            </>
+          ) : (
+            <button onClick={onBackClick} className="modal-back-button">戻る</button>
+          )}
         </div>
       </div>
     </div>
@@ -86,6 +97,11 @@ export default function Home() {
   const [partyAnswer, setPartyAnswer] = useState("");
   const [isModalLoading, setIsModalLoading] = useState(false);
   const [modalError, setModalError] = useState<string | null>(null);
+  // モーダル内の表示状態を管理
+  const [modalView, setModalView] = useState<'initial' | 'future' | 'past'>('initial');
+  // 最初の回答を保存しておくためのState
+  const [initialPartyAnswer, setInitialPartyAnswer] = useState("");
+
 
   const politicalParties = [
     "自民党", "民主党", "維新", "公明党",
@@ -93,6 +109,21 @@ export default function Home() {
     "参政党", "みんな", "みらい"
   ];
 
+  // APIを呼び出す共通関数
+  const getAiAnswer = async (question: string, partyName: string) => {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question, partyName }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'サーバーからの応答がありません');
+    }
+    const data = await response.json();
+    return data.answer;
+  };
+  
   // 政党ボタンがクリックされた時の処理
   const handlePartyClick = async (partyName: string) => {
     setSelectedParty(partyName);
@@ -100,24 +131,12 @@ export default function Home() {
     setIsModalLoading(true);
     setModalError(null);
     setPartyAnswer("");
+    setModalView('initial'); // 表示を初期状態にリセット
 
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          question: submittedQuestion,
-          partyName: partyName,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('サーバーからの応答がありません');
-      }
-
-      const data = await response.json();
-      setPartyAnswer(data.answer);
-
+      const answer = await getAiAnswer(submittedQuestion, partyName);
+      setPartyAnswer(answer);
+      setInitialPartyAnswer(answer); // 最初の回答を保存
     } catch (err) {
       console.error(err);
       const errorMessage = err instanceof Error ? err.message : '不明なエラーが発生しました';
@@ -125,6 +144,37 @@ export default function Home() {
     } finally {
       setIsModalLoading(false);
     }
+  };
+
+  // 「未来を見てみる」ボタンがクリックされた時の処理
+  const handleFutureRequest = async () => {
+    setIsModalLoading(true);
+    setModalError(null);
+    setModalView('future'); // 表示を「未来」モードに切り替え
+    const futurePrompt = `「${selectedParty}」の今後の動向について、未来を予測してください。`;
+
+    try {
+      const answer = await getAiAnswer(futurePrompt, selectedParty);
+      setPartyAnswer(answer);
+    } catch (err) {
+      console.error(err);
+      const errorMessage = err instanceof Error ? err.message : '不明なエラーが発生しました';
+      setModalError(`予測の取得に失敗しました: ${errorMessage}`);
+    } finally {
+      setIsModalLoading(false);
+    }
+  };
+  
+  // 「過去を見てみる」ボタンがクリックされた時の処理(あとでかく)
+  const handlePastRequest = () => {
+      console.log(`「${selectedParty}」の過去の情報を取得します。`);
+      // ここに過去の情報を取得するロジックを実装
+  };
+  
+  // 「戻る」ボタンがクリックされた時の処理
+  const handleBackToInitial = () => {
+      setPartyAnswer(initialPartyAnswer); // 保存しておいた最初の回答に戻す
+      setModalView('initial'); // 表示を初期状態に戻す
   };
 
   const closeModal = () => setIsModalOpen(false);
@@ -168,7 +218,7 @@ export default function Home() {
       <header className="header">
         <div className="header-inner">
           <div className="logo">
-            <Image src={logoIcon} alt="ちょいぽりてぃ ロゴ" width={85} height={85} />
+            <Image src={logoIcon} alt="ちょいぽりてぃ ロゴ" width={56} height={56} />
           </div>
           <button aria-label="menu" className="menu-button">
             <MenuIcon />
@@ -267,6 +317,11 @@ export default function Home() {
         answer={partyAnswer}
         isLoading={isModalLoading}
         error={modalError}
+        // モーダルに新しいPropsを渡す
+        modalView={modalView}
+        onFutureClick={handleFutureRequest}
+        onPastClick={handlePastRequest}
+        onBackClick={handleBackToInitial}
       />
     </div>
   );

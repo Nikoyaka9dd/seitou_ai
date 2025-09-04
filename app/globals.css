@@ -186,6 +186,53 @@ body {
   color: #3f3f46;
 }
 
+/* 送信された質問を表示するボックス */
+.submitted-question {
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  margin-bottom: 2rem;
+  background-color: #fff;
+  border: 1px solid #fde68a;
+  border-radius: 9999px;
+  text-align: center;
+  color: #1f2937;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* 政党の回答ボタンのグリッド */
+.party-answers-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+/* 政党の回答ボタン */
+.party-answer-button {
+  background-color: #fef3c7;
+  border-radius: 16px;
+  padding: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1f2937;
+  font-size: 0.9rem;
+  font-family: inherit;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.party-answer-button:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
 /* フッター */
 .footer {
   width: 100%;
@@ -222,6 +269,9 @@ body {
   }
   .features-grid {
     grid-template-columns: repeat(3, 1fr); /* PCでは3列に */
+  }
+  .party-answers-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 

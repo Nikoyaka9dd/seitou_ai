@@ -24,7 +24,7 @@ const MenuIcon = () => (
 // 送信ボタン用のアイコン
 const SendIcon = () => (
   <svg
-    xmlns="http://www.w3.org/2000/svg"
+    xmlns="http://www.w.org/2000/svg"
     width="20"
     height="20"
     viewBox="0 0 24 24"
@@ -42,24 +42,20 @@ const SendIcon = () => (
 export default function Home() {
   const [inputValue, setInputValue] = useState("");
   const [submittedQuestion, setSubmittedQuestion] = useState("");
-  const [showResults, setShowResults] = useState(false); // ★追加: 回答表示用のstate
+  const [showResults, setShowResults] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // ★追加: 政党のリスト
   const politicalParties = [
-    "自由民主党", "立憲民主党", "日本維新の会", "公明党",
-    "国民民主党", "日本共産党", "れいわ新選組", "社会民主党",
-    "NHK党", "参政党", "みんなでつくる党", "新党大地",
-    "沖縄社会大衆党", "地域政党あたらす会", "新しい学校をつくる党",
-    "教育無償化を実現する会", "つばさの党"
+    "自民党", "民主党", "維新", "公明党",
+    "国民民主", "共産党", "れいわ", "社民党",
+    "参政党", "みんな", "みらい"
   ];
 
-  // 送信処理を行う関数
   const handleSubmit = () => {
     const trimmedInput = inputValue.trim();
     if (trimmedInput) {
-      setSubmittedQuestion(trimmedInput); // ★追加: 送信された質問を保存
-      setShowResults(true); // ★追加: 回答表示モードに切り替え
+      setSubmittedQuestion(trimmedInput);
+      setShowResults(true);
       setInputValue("");
       if (textareaRef.current) {
         textareaRef.current.style.height = "auto";
@@ -67,7 +63,6 @@ export default function Home() {
     }
   };
 
-  // Enterキーでの送信をハンドルする関数
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -88,10 +83,8 @@ export default function Home() {
 
       <div className="container">
         <main className="main-content">
-          {/* 上部コンテンツ：showResultsの値で表示を切り替え */}
           <div className="w-full flex flex-col items-center">
             { !showResults ? (
-              // ★★★ 初期表示画面 ★★★
               <>
                 <h1 className="welcome-title">
                   ようこそ <span className="highlight">ちょいぽりてぃ</span> へ
@@ -106,9 +99,11 @@ export default function Home() {
                 </div>
               </>
             ) : (
-              // ★★★ 質問回答画面 ★★★
               <>
-                <div className="submitted-question">{submittedQuestion}</div>
+                {/* ★変更：質問を右寄せにするためのラッパーを追加 */}
+                <div className="submitted-question-wrapper">
+                  <div className="submitted-question">{submittedQuestion}</div>
+                </div>
                 <div className="party-answers-grid">
                   {politicalParties.map((party, index) => (
                     <button key={index} className="party-answer-button">
@@ -120,9 +115,9 @@ export default function Home() {
             )}
           </div>
 
-          {/* 下部コンテンツ（質問セクション） */}
           <div className="w-full">
-            <p className="question-prompt">質問してみよう ↓</p>
+            {/* ★変更：!showResultsの時だけ表示するようにする */}
+            { !showResults && <p className="question-prompt">質問してみよう ↓</p> }
             <div className="question-area">
               <textarea
                 ref={textareaRef}

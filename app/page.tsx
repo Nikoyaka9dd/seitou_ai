@@ -489,8 +489,8 @@ export default function Home() {
               <h1 className="welcome-title">
                 <span className="highlight">政治をもっと、やさしく</span>
               </h1>
-              <p className="welcome-subtitle">正確でわかりやすい情報をもとに、自分の意思で投票先を比較・判断できるようにする<br />政党政策まとめアプリです</p>
-              <p className="welcome-subtitle">ちょいぽりてぃにはこんな機能があります</p>
+              <p className="welcome-subtitle">正確でわかりやすい情報をもとに、<br />自分の意思で投票先を比較・判断できるようにする<br />政党政策まとめアプリです</p>
+              <p className="welcome-subtitle">ちょいぽりてぃには<br />こんな機能があります</p>
               <div className="features-grid">
                 <div className="feature-item">
                   <div className="feature-icon">💬</div>

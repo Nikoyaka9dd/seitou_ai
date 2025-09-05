@@ -364,7 +364,7 @@ export default function Home() {
       setIsMenuModalOpen(false);
   };
 
-  // ★追加：ヘルプモーダルを閉じる処理
+  // ヘルプモーダルを閉じる処理
   const handleCloseHelpModal = () => {
       setIsHelpModalClosing(true);
       setTimeout(() => {
@@ -373,7 +373,7 @@ export default function Home() {
       }, 400); // アニメーションの時間に合わせる
   };
   
-  // ★追加：テンプレートが選択された時の処理
+  // テンプレートが選択された時の処理
   const handleSelectQuestion = (question: string) => {
       handleCloseHelpModal();
       setInputValue(question);
@@ -445,15 +445,42 @@ export default function Home() {
           {!showResults ? (
             <>
               <h1 className="welcome-title">
-                ようこそ <span className="highlight">ちょいぽりてぃ</span> へ
+                <span className="highlight">政治をもっと、やさしく</span>
               </h1>
-              <p className="welcome-subtitle">こんな機能がありまっせ</p>
+              <p className="welcome-subtitle">正確でわかりやすい情報をもとに、自分の意思で投票先を比較・判断できるようにする<br />政党政策まとめアプリです</p>
+              <p className="welcome-subtitle">ちょいぽりてぃにはこんな機能があります</p>
               <div className="features-grid">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="feature-item">
-                    機能{i + 1}
+                <div className="feature-item">
+                  <div className="feature-icon">💬</div>
+                  <div className="feature-content">
+                    <div className="feature-title">チャットでサクッと政党比較</div>
+                    <div className="feature-description">AIがそれぞれの政党の考えをまとめてくれるので、違いがすぐにわかります。</div>
                   </div>
-                ))}
+                </div>
+                <div className="feature-item">
+                  <div className="feature-icon">⏱️</div>
+                  <div className="feature-content">
+                    <div className="feature-title">過去・今・未来を見てみよう</div>
+                    <div className="feature-description">その政党がこれまでにやってきたこと、今の公約、そして実現したらどうなるかをチェックできます。</div>
+                  </div>
+                </div>
+                <div className="feature-item">
+                  <div className="feature-icon">🤖</div>
+                  <div className="feature-content">
+                    <div className="feature-title">政党ごとの専属AI</div>
+                    <div className="feature-description">気になる政党には「専属AI」がついています。深く知りたいことを気軽に聞いてみましょう。</div>
+                  </div>
+                </div>
+                <div className="feature-item">
+                  <div className="feature-icon">📝</div>
+                  <div className="feature-content">
+                    <div className="feature-title">質問テンプレート</div>
+                    <div className="feature-description">質問内容に困ったら、テンプレートをご活用ください。</div>
+                  </div>
+                    <button className="template-access-button" onClick={() => setIsHelpModalOpen(true)}>
+                    質問テンプレート
+                    </button>
+                </div>
               </div>
             </>
           ) : (
@@ -473,7 +500,7 @@ export default function Home() {
               ) : (
                 <div className="results-wrapper">
                   <div className="answer-bubble-wrapper">
-                    <div className="submitted-question">回答やで〜</div>
+                    <div className="submitted-question">以下が各政党AIエージェントからの回答になります</div>
                   </div>
                   <div className="party-answers-grid">
                     {politicalParties.map((party, index) => (

@@ -516,9 +516,26 @@ body {
 }
 
 .modal-body {
-  margin-bottom: 1.5rem;
+  min-height: 80px;
   color: #374151;
   line-height: 1.6;
+  display: flex;
+  /* ★変更：テキストが多くなった場合に備えて、上揃えにします */
+  align-items: flex-start;
+  justify-content: center;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.modal-body p {
+    white-space: pre-wrap; 
+    word-break: break-word;
+    text-align: left; 
+    width: 100%; 
+}
+
+.history-item {
+    width: 100%;
 }
 
 .modal-footer {
@@ -541,6 +558,17 @@ body {
 .modal-action-button:hover {
     background-color: #fcd34d;
     transform: translateY(-2px);
+}
+
+.footer-button {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #6b7280;
+  background: none;
+  border: none;
+  padding: 0.5rem; /* クリックしやすく */
+  cursor: pointer;
+  text-decoration: underline;
 }
 
 /* フッター */
@@ -870,6 +898,12 @@ body {
     color: #9ca3af;
     margin-bottom: 1.5rem;
     border: 4px solid #e5e7eb;
+    overflow: hidden; /* はみ出した画像を隠す */
+}
+.word-cloud-placeholder img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* 画像を円形にフィットさせる */
 }
 .profile-description {
     color: #4b5563;
@@ -1082,8 +1116,42 @@ body {
     background-color: #e5e7eb;
 }
 
-
-
+/* 画像プレビュー用のモーダル */
+.image-preview-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050; /* 他のモーダルより手前に */
+    padding: 2rem;
+    animation: fadeInBackdrop 0.3s ease-out forwards;
+}
+.image-preview-content {
+    position: relative;
+    width: 80%;
+    max-width: 80vw;
+    max-height: 80vh;
+    animation: fadeInUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+.image-preview-content img {
+    width: 80%;
+    height: 80%;
+    object-fit: contain; /* アスペクト比を保って表示 */
+}
+.image-preview-close-button {
+    position: absolute;
+    top: -1rem;
+    right: -1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: white;
+}
 
 
 /* レスポンシブ対応 (PC表示) */

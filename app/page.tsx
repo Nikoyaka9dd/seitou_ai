@@ -1,9 +1,13 @@
 "use client";
 
 import { useRef, useState } from "react";
-import Image from 'next/image';
+import Image, { StaticImageData } from 'next/image';
 import logoIcon from './assets/icon.png';
 import { useRouter } from 'next/navigation';
+// 各政党のロゴ画像をインポート
+import jiminLogo from './assets/jimin.png';
+import minsyuLogo from './assets/minsyu.png';
+import kyosanLogo from './assets/kyosan.png';
 
 
 // アイコンのSVGコンポーネント群
@@ -24,6 +28,7 @@ type PartyProfile = {
   name: string;
   description: string;
   url: string;
+  image: StaticImageData | null; // 画像の型を追加
 };
 type PartyProfiles = {
   [key: string]: PartyProfile;
@@ -49,7 +54,6 @@ const HelpModal = ({ isOpen, isClosing, onClose, onSelectQuestion }: HelpModalPr
     ];
 
     return (
-        // 閉じる時のアニメーションクラスを適用
         <div className="help-modal-backdrop" onClick={onClose}>
             <div className={`help-modal-content ${isClosing ? 'is-closing' : ''}`} onClick={(e) => e.stopPropagation()}>
                 <h3 className="help-modal-title">こんな質問をしてみよう</h3>
@@ -105,9 +109,10 @@ type PartyProfileModalProps = {
     onClose: () => void;
     onBack: () => void;
     partyData: PartyProfile | null;
+    onImageClick: (image: StaticImageData) => void; // ★追加：画像クリック時のイベントハンドラ
 };
 
-const PartyProfileModal = ({ isOpen, onClose, onBack, partyData }: PartyProfileModalProps) => {
+const PartyProfileModal = ({ isOpen, onClose, onBack, partyData, onImageClick }: PartyProfileModalProps) => {
     const router = useRouter();
     if (!isOpen || !partyData) return null;
 
@@ -125,7 +130,15 @@ const PartyProfileModal = ({ isOpen, onClose, onBack, partyData }: PartyProfileM
                 </div>
                 <div className="profile-modal-body">
                     <h2 className="profile-title">{partyData.name}</h2>
-                    <div className="word-cloud-placeholder">word cloud</div>
+                    <div className="word-cloud-placeholder">
+                        {partyData.image ? (
+                            <button className="profile-image-button" onClick={() => onImageClick(partyData.image!)}>
+                                <Image src={partyData.image} alt={`${partyData.name} ロゴ`} width={200} height={200} />
+                            </button>
+                        ) : (
+                            <span>word cloud</span>
+                        )}
+                    </div>
                     <p className="profile-description">{partyData.description}</p>
                     <a href={partyData.url} target="_blank" rel="noopener noreferrer" className="profile-hp-link">公式HP</a>
                 </div>
@@ -139,8 +152,27 @@ const PartyProfileModal = ({ isOpen, onClose, onBack, partyData }: PartyProfileM
     );
 };
 
+type ImagePreviewModalProps = {
+    isOpen: boolean;
+    onClose: () => void;
+    imageSrc: StaticImageData | null;
+};
+const ImagePreviewModal = ({ isOpen, onClose, imageSrc }: ImagePreviewModalProps) => {
+    if (!isOpen || !imageSrc) return null;
 
-// 政党回答のモーダルコンポーネント
+    return (
+        <div className="image-preview-backdrop" onClick={onClose}>
+            <div className="image-preview-content" onClick={(e) => e.stopPropagation()}>
+                <Image src={imageSrc} alt="画像プレビュー" layout="responsive" />
+            </div>
+            <button onClick={onClose} className="image-preview-close-button" aria-label="閉じる">
+                <CloseIcon />
+            </button>
+        </div>
+    );
+};
+
+
 type PartyAnswerModalProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -227,7 +259,11 @@ export default function Home() {
   const [selectedPartyForProfile, setSelectedPartyForProfile] = useState("");
   
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
-  const [isHelpModalClosing, setIsHelpModalClosing] = useState(false); // ★追加
+  const [isHelpModalClosing, setIsHelpModalClosing] = useState(false);
+
+  // ★追加：画像プレビュー用のState
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState<StaticImageData | null>(null);
 
   const politicalParties = [
     "自民党", "民主党", "維新", "公明党",
@@ -236,17 +272,17 @@ export default function Home() {
   ];
   
   const partyProfiles: PartyProfiles = {
-    "自民党": { name: "自民党", description: "自由民主党の概要です。ここに政党の基本的な情報や理念などが表示されます。", url: "https://www.jimin.jp/" },
-    "民主党": { name: "民主党", description: "民主党の概要です。", url: "#" },
-    "維新": { name: "維新", description: "維新の概要です。", url: "#" },
-    "公明党": { name: "公明党", description: "公明党の概要です。", url: "#" },
-    "国民民主": { name: "国民民主", description: "国民民主の概要です。", url: "#" },
-    "共産党": { name: "共産党", description: "共産党の概要です。", url: "#" },
-    "れいわ": { name: "れいわ", description: "れいわの概要です。", url: "#" },
-    "社民党": { name: "社民党", description: "社民党の概要です。", url: "#" },
-    "参政党": { name: "参政党", description: "参政党の概要です。", url: "#" },
-    "みんな": { name: "みんな", description: "みんなの概要です。", url: "#" },
-    "みらい": { name: "みらい", description: "みらいの概要です。", url: "#" },
+    "自民党": { name: "自民党", description: "「自由と民主」を守る保守政党として、日本の伝統と文化を再評価しつつ、教育・科学技術・地域社会・財政再建を柱に「日本らしい日本」を築き、国際社会にも責任を果たすことを横綱としている。", url: "https://www.jimin.jp/", image: jiminLogo },
+    "民主党": { name: "民主党", description: "民主党の概要です。", url: "#", image: minsyuLogo },
+    "維新": { name: "維新", description: "維新の概要です。", url: "#", image: null },
+    "公明党": { name: "公明党", description: "公明党の概要です。", url: "#", image: null },
+    "国民民主": { name: "国民民主", description: "国民民主の概要です。", url: "#", image: null },
+    "共産党": { name: "共産党", description: "共産党の概要です。", url: "#", image: kyosanLogo },
+    "れいわ": { name: "れいわ", description: "れいわの概要です。", url: "#", image: null },
+    "社民党": { name: "社民党", description: "社民党の概要です。", url: "#", image: null },
+    "参政党": { name: "参政党", description: "参政党の概要です。", url: "#", image: null },
+    "みんな": { name: "みんな", description: "みんなの概要です。", url: "#", image: null },
+    "みらい": { name: "みらい", description: "みらいの概要です。", url: "#", image: null },
   };
 
   const getAiAnswer = async (question: string, partyName: string) => {
@@ -364,16 +400,14 @@ export default function Home() {
       setIsMenuModalOpen(false);
   };
 
-  // ヘルプモーダルを閉じる処理
   const handleCloseHelpModal = () => {
       setIsHelpModalClosing(true);
       setTimeout(() => {
           setIsHelpModalOpen(false);
           setIsHelpModalClosing(false);
-      }, 400); // アニメーションの時間に合わせる
+      }, 400);
   };
   
-  // テンプレートが選択された時の処理
   const handleSelectQuestion = (question: string) => {
       handleCloseHelpModal();
       setInputValue(question);
@@ -383,8 +417,16 @@ export default function Home() {
             textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
             textareaRef.current.focus();
         }
-    }, 10); // モーダルが閉じてからフォーカス
+    }, 10);
   };
+
+  // ★追加：画像プレビュー用の関数
+  const handleImageClick = (image: StaticImageData) => {
+    setPreviewImage(image);
+    setIsPreviewModalOpen(true);
+  };
+  const closePreviewModal = () => setIsPreviewModalOpen(false);
+
 
   const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputValue(e.target.value);
@@ -573,14 +615,20 @@ export default function Home() {
         onClose={closeProfileModal}
         onBack={handleBackToMenu}
         partyData={partyProfiles[selectedPartyForProfile]}
+        onImageClick={handleImageClick}
       />
       
-      {/* ★追加：ヘルプモーダル */}
       <HelpModal 
         isOpen={isHelpModalOpen}
         isClosing={isHelpModalClosing}
         onClose={handleCloseHelpModal}
         onSelectQuestion={handleSelectQuestion}
+      />
+      
+      <ImagePreviewModal
+        isOpen={isPreviewModalOpen}
+        onClose={closePreviewModal}
+        imageSrc={previewImage}
       />
     </div>
   );
